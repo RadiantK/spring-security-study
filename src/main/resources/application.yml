@@ -1,2 +1,11 @@
 server:
   port: 9090
+
+spring:
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+
+debug: true
