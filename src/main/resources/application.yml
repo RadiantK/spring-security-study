@@ -1,2 +1,32 @@
 server:
   port: 9090
+  # session
+  servlet:
+    session:
+      timeout: 10m # 기본이 30분이고 최소는 1분입니다.
+
+spring:
+  jpa:
+    show-sql: true
+    properties.hibernate.format_sql: true
+    hibernate:
+      ddl-auto: create
+  # Overloaded POST 사용 form태그를 put/delete 방식으로 사용하기 위해서 설정
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+  h2:
+    console:
+      enabled: true
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:authnote
+    username: sa
+    password:
+
+logging:
+  level:
+    root: info
+    sql: debug
+
