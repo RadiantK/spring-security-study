@@ -1,6 +1,10 @@
 package com.spring.security.config;
 
+import com.spring.security.jwt.JwtAuthenticationFilter;
+import com.spring.security.jwt.JwtAuthorizationFilter;
+import com.spring.security.jwt.JwtProperties;
 import com.spring.security.user.User;
+import com.spring.security.user.UserRepository;
 import com.spring.security.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -11,22 +15,39 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private final UserRepository userRepository;
     private final UserService userService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.httpBasic().disable(); // basic authentication filter 비활성화
         http.csrf();
-        http.rememberMe();
+        http.rememberMe().disable();
+
+        // stateless 세션 방식 사용x
+        http.sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        // jwt filter
+        http.addFilterBefore(
+                new JwtAuthenticationFilter(authenticationManager()),
+                UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(
+                        new JwtAuthorizationFilter(userRepository),
+                        BasicAuthenticationFilter.class);
+
 
         // authorization
         http.authorizeRequests()
@@ -47,7 +68,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // logout
         http.logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/");
+                .logoutSuccessUrl("/")
+                .invalidateHttpSession(true)
+                .deleteCookies(JwtProperties.COOKIE_NAME);
     }
 
     @Override
