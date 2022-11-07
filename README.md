@@ -8,5 +8,5 @@
 - 5-userdetails: UserDetails, UserDetailsService 인터페이스를 구현한 사용자 인증처리 예제
 
 ### feature브랜치
-- note-service: 공지사항 및 게시판 예제 (사용자, 관리자)
-
+- note-service: 공지사항 및 게시판 예제 (사용자, 관리자), 로그인 방식 세션
+- note-service-jwt: 공지사항 및 게시판 예제 (사용자, 관리자), 로그인 방식 jwt 쿠키 저장
